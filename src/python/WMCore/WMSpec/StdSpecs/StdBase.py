@@ -257,7 +257,12 @@ class StdBase(object):
         Memory settings are defined in Megabytes and timing in seconds.
         """
         # Default settings defined by CMS policy
-        maxpss = 2.3 * 1024  # 2.3 GiB, but in MiB
+        processingString = self.argumentDefinition['ProcessingString']['attr']
+        if processingString == 'Express':
+            maxpss = 3.0 * 1024  # 3.0 GiB, but in MiB
+        else:
+            maxpss = 2.3 * 1024  # 2.3 GiB, but in MiB
+
         softTimeout = 47 * 3600  # 47h
         hardTimeout = 47 * 3600 + 5 * 60  # 47h + 5 minutes
 
