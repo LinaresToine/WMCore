@@ -435,6 +435,7 @@ shift;shift;shift;shift;shift;
 shift;shift;shift;
 echo "Setting up Frontier log level"
 export FRONTIER_LOG_LEVEL=warning
+export XRD_LOGLEVEL=Debug
 
 echo "Beginning CMSSW wrapper script"
 echo "$SCRAM_SETUP $SCRAM_ARCHIT $SCRAM_COMMAND $SCRAM_PROJECT"
@@ -456,8 +457,18 @@ if [ $EXIT_STATUS -ne 0 ]; then echo "***\nCouldn't chdir: $EXIT_STATUS\n"; exit
 
 eval `$SCRAM_COMMAND runtime -sh`
 EXIT_STATUS=$?
+
 if [ $EXIT_STATUS -ne 0 ]; then echo "***\nCouldn't get scram runtime: $EXIT_STATUS\n*"; exit 73; fi
 echo "Completed SCRAM project"
+if ! [[ -z "${XRDCL_RECORDER_PLUGIN}" ]]; then
+    echo "Set the XRD recorder plugin settings"
+    export XRD_PLUGINCONFDIR=`pwd`
+    echo -e "url = *\nlib = $XRDCL_RECORDER_PLUGIN\nenable = true" > $XRD_PLUGINCONFDIR/recorder.conf
+    export XRD_RECORDERPATH=$XRD_PLUGINCONFDIR/xrd-record.log
+else
+    echo "Cannot find the XRD plugin (environmental variable XRDCL_RECORDER_PLUGIN missing)"
+fi
+
 cd ..
 echo "Executing CMSSW"
 echo "$EXECUTABLE  -j $JOB_REPORT $CONFIGURATION"
@@ -471,3 +482,4 @@ echo "process id is $PROCID status is $EXIT_STATUS"
 exit $EXIT_STATUS
 
 """
+
