@@ -523,7 +523,24 @@ class SetupCMSSWPset(ScriptInterface):
         self.scramRun(cmd)
 
         return
+    
+    def handleRequestTimeout(self, timeout):
+        """
+        _handleRequestTimeout_
 
+        Allow custom request timeout
+        """
+        procScript = "cmssw_enable_custom_timeout.py"
+        cmd = "%s --input_pkl %s --output_pkl %s --timeout %d" % (
+            procScript,
+            os.path.join(self.stepSpace.location, self.configPickle),
+            os.path.join(self.stepSpace.location, self.configPickle),
+            timeout)
+        
+        self.scramRun(cmd)
+
+        return
+    
     def handleSingleCoreOverride(self):
         """
         _handleSingleCoreOverride_
@@ -662,6 +679,7 @@ class SetupCMSSWPset(ScriptInterface):
         self.psetFile = getattr(self.step.data.application.command, "configuration", "PSet.py")
         self.scram = self.createScramEnv()
 
+        customRequestTimeout = getattr(self.step.data.application, "customRequestTimeout", None)
         scenario = getattr(self.step.data.application.configuration, "scenario", None)
         funcName = getattr(self.step.data.application.configuration, "function", None)
         if scenario is not None and scenario != "":
@@ -703,6 +721,10 @@ class SetupCMSSWPset(ScriptInterface):
             except Exception as ex:
                 self.logger.exception("Error loading PSet:")
                 raise ex
+
+        # Overwrite default request timeout, for context see https://github.com/cms-sw/cmssw-wm-tools/pull/5
+        if customRequestTimeout:
+            self.handleRequestTimeout(customRequestTimeout)
 
         # Check process.source exists
         if getattr(self.process, "source", None) is None and getattr(self.process, "_Process__source", None) is None:

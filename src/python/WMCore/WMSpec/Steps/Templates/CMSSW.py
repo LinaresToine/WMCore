@@ -163,6 +163,17 @@ class CMSSWStepHelper(CoreHelper):
         self.data.application.configuration.pickledarguments = pickle.dumps(args, protocol=0)
         return
 
+    def setCustomRequestTimeout(self, customRequestTimeout):
+        """
+        _setCustomRequestTimeout_
+
+        Set a custom request timeout 
+        For further context, see https://github.com/cms-sw/cmssw-wm-tools/pull/5
+
+        """
+        self.data.application.configuration.customRequestTimeout = customRequestTimeout
+        return
+
     def cmsswSetup(self, cmsswVersion, **options):
         """
         _cmsswSetup_
