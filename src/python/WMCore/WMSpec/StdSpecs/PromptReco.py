@@ -73,7 +73,7 @@ class PromptRecoWorkloadFactory(DataProcessing):
                                                splitAlgo=self.procJobSplitAlgo,
                                                splitArgs=self.procJobSplitArgs,
                                                stepType=cmsswStepType,
-                                               customRequestTimeout=self.customReuestTimeout,
+                                               customRequestTimeout=self.customRequestTimeout,
                                                forceUnmerged=[
                                                    "write_ALCARECO"] if 'ALCARECO' in self.writeTiers else False)
         if self.doLogCollect:
