@@ -679,7 +679,7 @@ class SetupCMSSWPset(ScriptInterface):
         self.psetFile = getattr(self.step.data.application.command, "configuration", "PSet.py")
         self.scram = self.createScramEnv()
 
-        customRequestTimeout = getattr(self.step.data.application, "customRequestTimeout", None)
+        customRequestTimeout = getattr(self.step.data.application.configuration, "customRequestTimeout", None)
         scenario = getattr(self.step.data.application.configuration, "scenario", None)
         funcName = getattr(self.step.data.application.configuration, "function", None)
         if scenario is not None and scenario != "":
