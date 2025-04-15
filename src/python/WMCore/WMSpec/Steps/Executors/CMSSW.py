@@ -434,6 +434,7 @@ CONFIGURATION=$8
 shift;shift;shift;shift;shift;
 shift;shift;shift;
 echo "Setting up Frontier log level"
+export XRD_LOGLEVEL=Dump
 export FRONTIER_LOG_LEVEL=warning
 
 echo "Beginning CMSSW wrapper script"
