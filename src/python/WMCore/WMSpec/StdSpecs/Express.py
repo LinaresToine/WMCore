@@ -265,7 +265,7 @@ class ExpressWorkloadFactory(StdBase):
         dataTier = getattr(parentOutputModule, "dataTier")
         mergeTask.setInputReference(parentTaskCmssw, outputModule=parentOutputModuleName, dataTier=dataTier)
 
-        self.addRuntimeMonitors(mergeTask)
+        self.addRuntimeMonitors(mergeTask, parentTask)
         mergeTaskCmssw = mergeTask.makeStep("cmsRun1")
         mergeTaskCmssw.setStepType("CMSSW")
 
