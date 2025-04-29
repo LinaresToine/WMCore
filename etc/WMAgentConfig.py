@@ -261,6 +261,7 @@ config.RetryManager.section_("SquaredAlgo")
 config.RetryManager.SquaredAlgo.section_("default")
 config.RetryManager.SquaredAlgo.default.coolOffTime = retryAlgoParams
 
+
 config.component_("JobArchiver")
 config.JobArchiver.namespace = "WMComponent.JobArchiver.JobArchiver"
 config.JobArchiver.componentDir = config.General.workDir + "/JobArchiver"
