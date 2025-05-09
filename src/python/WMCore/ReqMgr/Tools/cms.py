@@ -218,7 +218,7 @@ def releases(arch=None):
     "Return list of CMSSW releases"
     a = TC.releases(arch)
     a.append("CMSSW_15_0_X_2025-05-07-2300")
-    return TC.releases(arch)
+    return a
 
 
 def architectures():
