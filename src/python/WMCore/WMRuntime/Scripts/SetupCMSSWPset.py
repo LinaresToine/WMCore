@@ -495,7 +495,7 @@ class SetupCMSSWPset(ScriptInterface):
 
         if getattr(self.jobBag, "lheInputFiles", False):
             self.logger.info("Enabling 'lazy-download' for lheInputFiles job")
-            self._enableLazyDownload()
+            #self._enableLazyDownload()
 
         return
 
@@ -506,7 +506,7 @@ class SetupCMSSWPset(ScriptInterface):
         Repacking small events is super inefficient reading directly from EOS.
         """
         self.logger.info("Hardcoding read/cache strategies for repack")
-        self._enableLazyDownload()
+        #self._enableLazyDownload()
         return
 
     def _enableLazyDownload(self):
@@ -554,10 +554,10 @@ class SetupCMSSWPset(ScriptInterface):
         """
         if self.getCmsswVersion().startswith("CMSSW_7_5") and False:
             self.logger.info("Using fastCloning/lazydownload")
-            self._enableLazyDownload()
+            #self._enableLazyDownload()
         elif funcName == "merge":
             self.logger.info("Using lazydownload")
-            self._enableLazyDownload()
+            #self._enableLazyDownload()
 
         return
 
@@ -688,14 +688,14 @@ class SetupCMSSWPset(ScriptInterface):
                 self.logger.error(msg)
                 raise ex
 
-            if funcName == "repack":
-                self.handleRepackSettings()
+            #if funcName == "repack":
+            #    self.handleRepackSettings()
 
             if funcName in ["merge", "alcaHarvesting"]:
                 self.handleSingleCoreOverride()
 
-            if socket.getfqdn().endswith("cern.ch"):
-                self.handleSpecialCERNMergeSettings(funcName)
+            #if socket.getfqdn().endswith("cern.ch"):
+            #    self.handleSpecialCERNMergeSettings(funcName)
         else:
             self.logger.info("DEBUG: Now in the none scenario to load PSET")
             try:
@@ -712,7 +712,7 @@ class SetupCMSSWPset(ScriptInterface):
             self.logger.error(msg)
             raise RuntimeError(msg)
 
-        self.handleCondorStatusService()
+        #self.handleCondorStatusService()
         self.fixupProcess()
 
         # In case of CRAB3, the number of threads in the PSet should not be overridden
@@ -739,8 +739,8 @@ class SetupCMSSWPset(ScriptInterface):
 
         # check for pileup settings presence, pileup support implementation
         # and if enabled, process pileup configuration / settings
-        if hasattr(self.step.data, "pileup"):
-            self.handlePileup()
+        #if hasattr(self.step.data, "pileup"):
+        #    self.handlePileup()
 
         # Apply per output module PSet Tweaks
         self.logger.info("Output module section")
@@ -769,19 +769,19 @@ class SetupCMSSWPset(ScriptInterface):
             self.tweak.addParameter('process.maxEvents.input', "customTypeCms.untracked.int32(1)")
 
         # check for random seeds and the method of seeding which is in the job baggage
-        self.handleSeeding()
+        #self.handleSeeding()
 
         # make sure default parametersets for perf reports are installed
         self.handlePerformanceSettings()
 
         # fixup the dqmFileSaver
-        self.handleDQMFileSaver()
+        #self.handleDQMFileSaver()
 
         # tweak for jobs reading LHE articles from CERN
         self.handleLHEInput()
 
         # tweak jobs for enforceGUIDInFileName
-        self.handleEnforceGUIDInFileName()
+        #self.handleEnforceGUIDInFileName()
 
         # Check if we accept skipping bad files
         if hasattr(self.step.data.application.configuration, "skipBadFiles"):
