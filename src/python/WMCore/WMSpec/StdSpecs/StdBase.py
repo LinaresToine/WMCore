@@ -786,7 +786,8 @@ class StdBase(object):
         harvestTask = parentTask.addTask("%s%sDQMHarvest%s" % (parentTask.name(),
                                                                harvestType,
                                                                parentOutputModuleName))
-        self.addRuntimeMonitors(harvestTask)
+
+        self.addRuntimeMonitors(harvestTask, maxpss=self.taskMemory)
         harvestTaskCmssw = harvestTask.makeStep("cmsRun1")
         harvestTaskCmssw.setStepType("CMSSW")
 
@@ -1105,6 +1106,7 @@ class StdBase(object):
                      "MergedLFNBase": {"default": "/store/data"},
                      "UnmergedLFNBase": {"default": "/store/unmerged"},
                      "DeleteFromSource": {"default": False, "type": strToBool},
+                     "TaskMemory": {"default": 2300.0, "type": float, "validate": lambda x: x > 0},
                      }
 
         # these arguments are internally set by ReqMgr2 and should not be provided by the user
