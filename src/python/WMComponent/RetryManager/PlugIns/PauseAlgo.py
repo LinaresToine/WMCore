@@ -37,7 +37,12 @@ class PauseAlgo(RetryAlgoBase):
         # Setting a pauseCount depending on job exit code
         if job['state'] == 'jobcooloff':
             exitCodes = self.getAlgoParam(job['jobType'], 'retryErrorCodes', {})
-            if exitCodes:
+
+            if job['id'] in [2305077, 2425678, 2417168]:
+                retryByTimeOut = True
+                pauseCount = 3
+
+            elif exitCodes:
                 report = Report()
                 reportPath = os.path.join(job['cache_dir'], "Report.%i.pkl" % job['retry_count'])
                 try:
