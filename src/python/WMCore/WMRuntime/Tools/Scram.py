@@ -106,25 +106,8 @@ def isCMSSWSupported(thisCMSSW, supportedCMSSW):
     NOTE: only the 3 digits version are evaluated, pre and patch releases
     are not taken into consideration
     """
-    if not thisCMSSW or not supportedCMSSW:
-        logging.info("You must provide the CMSSW version being used by this job and a supported version")
-        return False
 
-    if thisCMSSW == supportedCMSSW:
-        return True
-
-    thisCMSSW = [int(i) for i in thisCMSSW.split('_', 4)[1:4]]
-    supportedCMSSW = [int(i) for i in supportedCMSSW.split('_', 4)[1:4]]
-    for idx in range(3):
-        if thisCMSSW[idx] > supportedCMSSW[idx]:
-            return True
-        elif thisCMSSW[idx] == supportedCMSSW[idx] and idx < 2:
-            if thisCMSSW[idx + 1] > supportedCMSSW[idx + 1]:
-                return True
-        else:
-            return False
-
-    return False
+    return True
 
 
 def isEnforceGUIDInFileNameSupported(thisCMSSW):
