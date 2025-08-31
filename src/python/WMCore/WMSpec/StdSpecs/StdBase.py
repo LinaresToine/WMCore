@@ -311,7 +311,8 @@ class StdBase(object):
                             forceMerged=False, forceUnmerged=False,
                             configCacheUrl=None, timePerEvent=None, memoryReq=None,
                             sizePerEvent=None, applySiteLists=True, cmsswVersion=None,
-                            scramArch=None, globalTag=None, taskConf=None):
+                            scramArch=None, globalTag=None, taskConf=None, 
+                            customRequestTimeout=None):
         """
         _setupProcessingTask_
 
@@ -492,6 +493,10 @@ class StdBase(object):
 
             procTaskCmsswHelper.setDataProcessingConfig(scenarioName, scenarioFunc,
                                                         **scenarioArgs)
+        
+        if customRequestTimeout:
+            procTaskCmsswHelper.setCustomRequestTimeout(customRequestTimeout)
+
         # only in the very end, in order to get it in for the children tasks as well
         procTask.setPrepID(prepID)
 
@@ -1110,6 +1115,7 @@ class StdBase(object):
                      "MergedLFNBase": {"default": "/store/data"},
                      "UnmergedLFNBase": {"default": "/store/unmerged"},
                      "DeleteFromSource": {"default": False, "type": strToBool},
+                     "CustomRequestTimeout": {"null": True, "optional": True, "type": int, "validate": lambda x: x > 0}
                      }
 
         # these arguments are internally set by ReqMgr2 and should not be provided by the user
