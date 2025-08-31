@@ -489,7 +489,7 @@ class StdBase(object):
                         del output['primaryDataset']
             if 'primaryDataset' in scenarioArgs:
                 del scenarioArgs['primaryDataset']
-
+            logging.info("+++ scenarioArgs = {}".format(scenarioArgs))
             procTaskCmsswHelper.setDataProcessingConfig(scenarioName, scenarioFunc,
                                                         **scenarioArgs)
         # only in the very end, in order to get it in for the children tasks as well
