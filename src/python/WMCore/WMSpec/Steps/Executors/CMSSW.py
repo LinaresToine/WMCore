@@ -435,6 +435,7 @@ shift;shift;shift;shift;shift;
 shift;shift;shift;
 echo "Setting up Frontier log level"
 export FRONTIER_LOG_LEVEL=warning
+export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/T0_CH_CERN
 
 echo "Beginning CMSSW wrapper script"
 echo "$SCRAM_SETUP $SCRAM_ARCHIT $SCRAM_COMMAND $SCRAM_PROJECT"
