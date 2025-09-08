@@ -94,7 +94,7 @@ class PromptRecoWorkloadFactory(DataProcessing):
                 if self.globalTagConnect:
                     scenarioArgs['globalTagConnect'] = self.globalTagConnect
 
-                alcaOutMods = self.setupProcessingTask(alcaTask, taskType,
+                alcaOutMods = self.setupProcessingTask(alcaTask, 'Skim',
                                                        inputStep=recoTask.getStep("cmsRun1"),
                                                        inputModule=recoOutLabel,
                                                        scenarioName=self.procScenario,
