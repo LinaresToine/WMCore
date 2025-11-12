@@ -141,7 +141,7 @@ class TagCollector(Service):
         
             try:
                 self.parseCvmfsReleasesXML(releasesMap=self.cvmfsReleasesMap, releasesXML=self.tmpReleasesXML)
-                with open('/tmp/ReleasesXML', 'r', encoding='utf-8') as f:
+                with open(self.tmpReleasesXML, 'r', encoding='utf-8') as f:
                     result = f.read()
                 f.close()
             except:

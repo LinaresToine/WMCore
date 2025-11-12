@@ -5,6 +5,7 @@ Created on Dec 16, 2016
 from __future__ import (division, print_function)
 
 import unittest
+import xml.etree.ElementTree as ElementTree
 
 from WMCore.Services.TagCollector.TagCollector import TagCollector
 
@@ -17,12 +18,33 @@ class TagCollectorTest(unittest.TestCase):
         """
         # using the default production server
         self.tagCollecor = TagCollector()
+        self.testReleasesMap = "/tmp/testReleases.map"
+        self.testReleasesXML = "/tmp/testReleasesXML"
+
+        releasesMap = (
+                        "architecture=el9_amd64_gcc12;label=CMSSW_15_0_15_patch3;type=Production;state=Announced;prodarch=0;default_micro_arch=x86-64-v3;\n"
+                        "architecture=el8_amd64_gcc12;label=CMSSW_15_0_15_patch3;type=Production;state=Announced;prodarch=1;default_micro_arch=x86-64-v3;\n"
+                        "architecture=el8_amd64_gcc13;label=CMSSW_16_0_0_pre1_FASTPU;type=Development;state=Announced;prodarch=1;default_micro_arch=x86-64-v3;\n"
+                        "architecture=el9_amd64_gcc12;label=CMSSW_15_0_15_patch4;type=Production;state=Announced;prodarch=0;default_micro_arch=x86-64-v3;\n"
+                        "architecture=el8_amd64_gcc12;label=CMSSW_15_0_15_patch4;type=Production;state=Announced;prodarch=1;default_micro_arch=x86-64-v3;\n"
+                    )
+        with open(self.testReleasesMap, "w", encoding="utf-8") as f:
+            f.write(releasesMap)
+
         return
 
     def testTagCollecorMethods(self):
         """
         _testTagCollecorMethods_
         """
+
+        self.tagCollecor.parseCvmfsReleasesXML(self.testReleasesMap, self.testReleasesXML)
+        releasesXML = self.testReleasesXML.read_text(encoding="utf-8")
+        try:
+            ElementTree.parse(releasesXML)
+        except ElementTree.ParseError as e:
+            self.fail(f"Output file is not valid XML: {e}")
+
         releases = self.tagCollecor.releases()
         architectures = self.tagCollecor.architectures()
         realsese_by_arch = self.tagCollecor.releases_by_architecture()
