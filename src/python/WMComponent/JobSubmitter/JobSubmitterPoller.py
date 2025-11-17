@@ -20,7 +20,6 @@ from collections import defaultdict, Counter
 import pickle
 
 from Utils.Timers import timeFunction
-from Utils.wmcoreDTools import resetWatchdogTimer, moduleName
 from WMCore.DAOFactory import DAOFactory
 from WMCore.WMExceptions import WM_JOB_ERROR_CODES
 
@@ -33,7 +32,6 @@ from WMCore.WMException import WMException
 from WMCore.BossAir.BossAirAPI import BossAirAPI
 from WMCore.Services.ReqMgr.ReqMgr import ReqMgr
 from WMCore.Services.ReqMgrAux.ReqMgrAux import ReqMgrAux
-from WMCore.Services.TagCollector.TagCollector import TagCollector
 
 from WMComponent.JobSubmitter.JobSubmitAPI import availableScheddSlots
 
@@ -104,10 +102,6 @@ class JobSubmitterPoller(BaseWorkerThread):
         self.drainSitesSet = set()
         self.abortSites = set()
         self.refreshPollingCount = 0
-
-        # TagCollector for getting the CMSSW micro-architectures
-        tcCacheHours = getattr(self.config.JobSubmitter, 'TagCollectorCacheHours', 3)
-        self.tc = TagCollector(configDict={'cacheduration': tcCacheHours})
 
         try:
             if not getattr(self.config.JobSubmitter, 'submitDir', None):
@@ -413,7 +407,6 @@ class JobSubmitterPoller(BaseWorkerThread):
                        'allowOpportunistic': loadedJob.get('allowOpportunistic', False),
                        'requiresGPU': loadedJob.get('requiresGPU', "forbidden"),
                        'gpuRequirements': loadedJob.get('gpuRequirements', None),
-                       'jobExtraMatchRequirements': loadedJob.get('jobExtraMatchRequirements', ""),
                        'campaignName': loadedJob.get('campaignName', None),
                        'requestType': loadedJob['requestType'],
                        'physicsTaskType': loadedJob.get('physicsTaskType', None)
@@ -653,6 +646,12 @@ class JobSubmitterPoller(BaseWorkerThread):
                      "Threshold": totalTaskTheshold}]
         return jobSubmitCondition(jobStats)
 
+    def get_run_number(self, request_name):
+        import re
+        match = re.search(r'Run(\d+)', request_name)
+        return int(match.group(1)) if match else float('inf')
+
+
     def assignJobLocations(self):
         """
         _assignJobLocations_
@@ -680,8 +679,15 @@ class JobSubmitterPoller(BaseWorkerThread):
             if exitLoop:
                 break
 
+            run_sorted_jobs = sorted(
+                self.jobsByPrio[jobPrio],
+                key=lambda jobid: (self.get_run_number(self.jobDataCache[jobid]['request_name']), jobid)
+            )
+
+
             # can we assume jobid=1 is older than jobid=3? I think so...
-            for jobid in sorted(self.jobsByPrio[jobPrio]):
+            #for jobid in sorted(self.jobsByPrio[jobPrio]):
+            for jobid in run_sorted_jobs:
                 jobType = self.jobDataCache[jobid]['task_type']
                 possibleSites = self.jobDataCache[jobid]['possibleSites']
                 # remove sites with 0 task thresholds
@@ -749,15 +755,6 @@ class JobSubmitterPoller(BaseWorkerThread):
             logging.debug("There are no packages to submit.")
             return
 
-        # Update cache of CMSSW micro-architectures
-        try:
-            cmsswMicroArchs = self.tc.defaultMicroArchVersionNumberByRelease()
-        except Exception as ex:
-            msg = f"Failed to update cache of CMSSW micro-architectures: {str(ex)}. "
-            msg += "Retrying again in the next cycle."
-            logging.error(msg)
-            return
-
         for package in jobsToSubmit:
             jobs = jobsToSubmit.get(package, [])
             for job in jobs:
@@ -770,7 +767,7 @@ class JobSubmitterPoller(BaseWorkerThread):
         myThread.transaction.begin()
 
         # Run the actual underlying submit code using bossAir
-        successList, failList = self.bossAir.submit(jobs=jobList, info=cmsswMicroArchs)
+        successList, failList = self.bossAir.submit(jobs=jobList)
         logging.info("Jobs that succeeded/failed submission: %d/%d.", len(successList), len(failList))
 
         # Propagate states in the WMBS database
@@ -857,11 +854,6 @@ class JobSubmitterPoller(BaseWorkerThread):
             if getattr(myThread, 'transaction', None) is not None:
                 myThread.transaction.rollback()
             raise JobSubmitterPollerException(msg)
-
-        # Reset its own watchdog timer at the end of the run cycle
-        logging.info(f"Resetting {moduleName(self)} watchdog timer.")
-        if resetWatchdogTimer(self):
-            logging.warning(f"Failed to reset {moduleName(self)} watchdog timer. The component might be restarted soon.")
 
         return
 
