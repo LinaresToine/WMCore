@@ -15,6 +15,7 @@ import logging
 import os.path
 import threading
 import json
+import re
 import time
 from collections import defaultdict, Counter
 import pickle
@@ -653,6 +654,17 @@ class JobSubmitterPoller(BaseWorkerThread):
                      "Threshold": totalTaskTheshold}]
         return jobSubmitCondition(jobStats)
 
+    def getRunNumber(self, requestName):
+        """
+        _getRunNumber_
+        
+        The larger the run number, the newer the run
+        We get the runnumber to identify older jobs
+        """
+        match = re.search(r'Run(\d+)', requestName)
+        runNumber = int(match.group(1)) if match else float('inf')
+        return runNumber
+    
     def assignJobLocations(self):
         """
         _assignJobLocations_
@@ -680,8 +692,11 @@ class JobSubmitterPoller(BaseWorkerThread):
             if exitLoop:
                 break
 
-            # can we assume jobid=1 is older than jobid=3? I think so...
-            for jobid in sorted(self.jobsByPrio[jobPrio]):
+            runSortedJobs = sorted(
+                self.jobsByPrio[jobPrio],
+                key = lambda jobid: (self.getRunNumber(self.jobDataCache[jobid]['request_name']), jobid)
+            )
+            for jobid in runSortedJobs:
                 jobType = self.jobDataCache[jobid]['task_type']
                 possibleSites = self.jobDataCache[jobid]['possibleSites']
                 # remove sites with 0 task thresholds
