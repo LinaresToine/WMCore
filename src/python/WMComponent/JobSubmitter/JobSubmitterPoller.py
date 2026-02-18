@@ -12,6 +12,7 @@ from builtins import range
 from future.utils import viewitems
 
 import logging
+import re
 import os.path
 import threading
 import json
@@ -653,6 +654,13 @@ class JobSubmitterPoller(BaseWorkerThread):
                      "Threshold": totalTaskTheshold}]
         return jobSubmitCondition(jobStats)
 
+    def getRunNumber(self, requestName):
+        """
+        Gets the run for a job
+        """
+        match = re.search(r'Run(\d+)', requestName)
+        return int(match.group(1)) if match else float('inf')
+    
     def assignJobLocations(self):
         """
         _assignJobLocations_
@@ -680,8 +688,13 @@ class JobSubmitterPoller(BaseWorkerThread):
             if exitLoop:
                 break
 
+            runSortedJobs = sorted(
+                self.jobsByPrio[jobPrio],
+                key=lambda jobid: (self.getRunNumber(self.jobDataCache[jobid]['request_name']), jobid)
+            )
+
             # can we assume jobid=1 is older than jobid=3? I think so...
-            for jobid in sorted(self.jobsByPrio[jobPrio]):
+            for jobid in runSortedJobs:
                 jobType = self.jobDataCache[jobid]['task_type']
                 possibleSites = self.jobDataCache[jobid]['possibleSites']
                 # remove sites with 0 task thresholds
