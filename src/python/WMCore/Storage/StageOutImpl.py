@@ -265,13 +265,16 @@ class StageOutImpl:
         stageOutEx = None  # variable to store the possible StageOutError
         for retryCount in range(self.numRetries + 1):
             try:
+                self.timeout = 2
                 logging.info("Running the stage out with the available auth method (attempt %d)...", retryCount + 1)
-                logging.info("Command to run: %s", command)
-                self.executeCommand(command)
+                command_2 = command + ' && python -c "import time; time.sleep(10)"'
+                logging.info("Command to run: %s", command_2)
+                self.executeCommand(command_2)
                 logging.info("\nStage-out succeeded with the current environment.")
                 break
 
             except StageOutError as ex:
+                self.timeout = 3600 * self.numRetries
                 msg = "Attempt {} to stage out failed with default setup.\n".format(retryCount)
                 msg += "Error details:\n{}\n".format(str(ex))
                 logging.error(msg)
